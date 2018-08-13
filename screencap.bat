@@ -134,7 +134,8 @@ if %slt%==2 (goto screenrecord) else (cls & goto main)
 :screencap
 echo %cd%\%model:~6,-1%-%fn%.png
 adb -s %SERIAL% shell screencap /data/local/tmp/1.png ^&
-adb -s %SERIAL% pull /data/local/tmp/1.png %model:~6,-1%-%fn%.png
+adb -s %SERIAL% pull /data/local/tmp/1.png %model:~6,-1%-%fn%.png ^&
+adb -s %SERIAL% shell rm /data/local/tmp/1.png
 goto main
 
 :screenrecord
@@ -143,5 +144,6 @@ echo %cd%\%model:~6,-1%-%fn%.mp4
 echo Recording, max 180s, press Ctrl+C to break.
 adb -s %SERIAL% shell screenrecord /data/local/tmp/1.mp4 &^
 timeout /t 2 >nul &^
-adb -s %SERIAL% pull /data/local/tmp/1.mp4 %model:~6,-1%-%fn%.mp4
+adb -s %SERIAL% pull /data/local/tmp/1.mp4 %model:~6,-1%-%fn%.mp4 &^
+adb -s %SERIAL% shell rm /data/local/tmp/1.mp4
 goto main
