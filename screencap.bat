@@ -1,7 +1,8 @@
 ::author MrLeopard
 
 @echo off 
-mode con: cols=80 lines=35
+mode con: cols=80 lines=30
+echo Starting ADB server
 adb start-server
 setlocal enabledelayedexpansion
 
@@ -75,7 +76,7 @@ echo ================================
 rem "return" SERIAL
 rem usage: adb -s %SERIAL% shell xxx
 
-if !no! EQU 2 (set model=!model1! & set SERIAL=!deivce1! & goto title)
+if !no! EQU 2 (set model=!model1! & set SERIAL=!deivce1! &goto title)
 
 set /a input_max=!no!-1
 echo input device no, "x" to exit.（default chose is 1）
@@ -97,7 +98,7 @@ set SERIAL=!%SERIAL_ord%!
 set model=!%model_ord%!
 
 :title
-title %model:~6%---%SERIAL%
+title %model:~6%[%SERIAL%]
 pushd %filepath%
 
 set slt=1
@@ -118,23 +119,24 @@ echo d:  select device
 echo r:  reset file save path
 echo x:  exit
 echo ================================
-if %slt%==1 (echo Enter to continue)
-if %slt%==2 (echo Enter to continue)
+set /p slt=
+rem if %slt%==0 (cls & goto main)
+rem if %slt%==1 (echo Enter to continue)
+rem if %slt%==2 (echo Enter to continue)
+if %slt%==1 goto screencap
+if %slt%==2 (goto screenrecord) 
 if %slt%==d (goto list_device)
 if %slt%==D (goto list_device)
 if %slt%==r (del %temp%\screencfg.ini &goto pathChose)
 if %slt%==R (del %temp%\screencfg.ini &goto pathChose)
 if %slt%==x (goto :EOF)
-if %slt%==X (goto :EOF)
-set /p slt=
-if %slt%==0 (cls & goto main)
-if %slt%==1 goto screencap
-if %slt%==2 (goto screenrecord) else (cls & goto main)
+if %slt%==X (goto :EOF) else (cls & set slt=1 & goto main)
+
 
 :screencap
 echo %cd%\%model:~6,-1%-%fn%.png
-adb -s %SERIAL% shell screencap /data/local/tmp/1.png ^&
-adb -s %SERIAL% pull /data/local/tmp/1.png %model:~6,-1%-%fn%.png ^&
+adb -s %SERIAL% shell screencap /data/local/tmp/1.png
+adb -s %SERIAL% pull /data/local/tmp/1.png %model:~6,-1%-%fn%.png
 adb -s %SERIAL% shell rm /data/local/tmp/1.png
 goto main
 
@@ -144,6 +146,6 @@ echo %cd%\%model:~6,-1%-%fn%.mp4
 echo Recording, max 180s, press Ctrl+C to break.
 adb -s %SERIAL% shell screenrecord /data/local/tmp/1.mp4 &^
 timeout /t 2 >nul &^
-adb -s %SERIAL% pull /data/local/tmp/1.mp4 %model:~6,-1%-%fn%.mp4 &^
+adb -s %SERIAL% pull /data/local/tmp/1.mp4 %model:~6,-1%-%fn%.mp4
 adb -s %SERIAL% shell rm /data/local/tmp/1.mp4
 goto main
